@@ -36,6 +36,7 @@ public class FileupreceiverApplication {
 				JakartaServletFileUpload jakartaServletFileUpload = new JakartaServletFileUpload();
 				try {
 					FileItemInputIterator itemIterator = jakartaServletFileUpload.getItemIterator(httpServletRequest);
+					// While is OK here only because we consume the fileItemInput.getInputStream() in each iteration
 					while (itemIterator.hasNext()) {
 						FileItemInput fileItemInput = itemIterator.next();
 						System.out.println("Received file: Field: " + fileItemInput.getFieldName() + " Filename: " + fileItemInput.getName() + " content type: " + fileItemInput.getContentType());
