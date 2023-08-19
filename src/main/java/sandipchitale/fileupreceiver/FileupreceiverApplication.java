@@ -43,7 +43,7 @@ public class FileupreceiverApplication {
 
 						File receivedFile = new File(fileItemInput.getName());
 						try (FileOutputStream fos = new FileOutputStream(receivedFile)) {
-							IOUtils.copy(fileItemInput.getInputStream(), fos, 4096);
+							IOUtils.copy(fileItemInput.getInputStream(), fos, 32768);
 							System.out.println("Wrote received file to: " + receivedFile.getAbsolutePath());
 						}
 					}
