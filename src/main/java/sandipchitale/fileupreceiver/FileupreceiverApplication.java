@@ -39,13 +39,14 @@ public class FileupreceiverApplication {
 					// While is OK here only because we consume the fileItemInput.getInputStream() in each iteration
 					while (itemIterator.hasNext()) {
 						FileItemInput fileItemInput = itemIterator.next();
-						System.out.println("Received file: Field: " + fileItemInput.getFieldName() + " Filename: " + fileItemInput.getName() + " content type: " + fileItemInput.getContentType());
+						if (!fileItemInput.isFormField()) {
+							System.out.println("Received file: Field: " + fileItemInput.getFieldName() + " Filename: " + fileItemInput.getName() + " content type: " + fileItemInput.getContentType());
 
-
-						File receivedFile = new File(fileItemInput.getName());
-						try (FileOutputStream fos = new FileOutputStream(receivedFile)) {
-							IOUtils.copy(fileItemInput.getInputStream(), fos, 32768);
-							System.out.println("Wrote received file to: " + receivedFile.getAbsolutePath());
+							File receivedFile = new File(fileItemInput.getName());
+							try (FileOutputStream fos = new FileOutputStream(receivedFile)) {
+								IOUtils.copy(fileItemInput.getInputStream(), fos, 32768);
+								System.out.println("Wrote received file to: " + receivedFile.getAbsolutePath());
+							}
 						}
 					}
 				} catch (IOException e) {
