@@ -7,26 +7,26 @@ import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import static java.nio.file.Files.createTempDirectory;
 
 @SpringBootApplication
 public class FileupreceiverApplication {
 	@RestController
 	public static class ReceiveController {
 
-		private final RestTemplate restTemplate;
+		private final File uploadFolder;
 
-		public ReceiveController(RestTemplateBuilder restTemplateBuilder) {
-			this.restTemplate = restTemplateBuilder
-					.setBufferRequestBody(false)
-					.build();
-
+		public ReceiveController() throws IOException {
+			this.uploadFolder = createTempDirectory("upload").toFile();
 		}
 
 		@PostMapping("/receive")
@@ -39,10 +39,10 @@ public class FileupreceiverApplication {
 					// While is OK here only because we consume the fileItemInput.getInputStream() in each iteration
 					while (itemIterator.hasNext()) {
 						FileItemInput fileItemInput = itemIterator.next();
-						if (!fileItemInput.isFormField()) {
+						if (!fileItemInput.isFormField() && StringUtils.hasText(fileItemInput.getName())) {
 							System.out.println("Received file: Field: " + fileItemInput.getFieldName() + " Filename: " + fileItemInput.getName() + " content type: " + fileItemInput.getContentType());
 
-							File receivedFile = new File(fileItemInput.getName());
+							File receivedFile = new File(uploadFolder, fileItemInput.getName());
 							try (FileOutputStream fos = new FileOutputStream(receivedFile)) {
 								IOUtils.copy(fileItemInput.getInputStream(), fos, 32768);
 								System.out.println("Wrote received file to: " + receivedFile.getAbsolutePath());
