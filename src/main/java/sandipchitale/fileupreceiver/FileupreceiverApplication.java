@@ -5,8 +5,10 @@ import org.apache.commons.fileupload2.core.FileItemInput;
 import org.apache.commons.fileupload2.core.FileItemInputIterator;
 import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,11 +24,17 @@ import static java.nio.file.Files.createTempDirectory;
 public class FileupreceiverApplication {
 	@RestController
 	public static class ReceiveController {
-
 		private final File uploadFolder;
 
-		public ReceiveController() throws IOException {
-			this.uploadFolder = createTempDirectory("upload").toFile();
+		public ReceiveController(@Value(value="${spring.servlet.multipart.location:#{null}}") String uploadLocation) throws IOException {
+			if (uploadLocation != null) {
+				this.uploadFolder = new File(uploadLocation);
+				if (!this.uploadFolder.exists()) {
+					uploadFolder.mkdirs();
+				}
+			} else {
+				this.uploadFolder = createTempDirectory("upload").toFile();
+			}
 		}
 
 		@PostMapping("/receive")
